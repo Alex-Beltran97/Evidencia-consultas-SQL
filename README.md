@@ -546,7 +546,7 @@ delimiter ;
 SELECT precio_por_cantidad(3,2); -- 2 televisores
 ~~~
 
-## __7) Un trigger __
+## __7) Un trigger__
 
 * __Trigger para actualizacion de precios__
 
