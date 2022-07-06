@@ -28,131 +28,232 @@ CREATE DATABASE tienda_virtual;
 
 USE tienda_virtual;
 
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Usuarios` (
-  `Id_user` INT NOT NULL AUTO_INCREMENT,
-  `Tipo_doc` INT NOT NULL,
-  `No_documento` INT NOT NULL,
-  `Nombre_user` VARCHAR(50) NOT NULL,
-  `Apellido` VARCHAR(50) NOT NULL,
-  `Fecha_nacimiento` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `Direccion` VARCHAR(50) NOT NULL,
-  `Ciudad` VARCHAR(50) NOT NULL,
-  `password` VARCHAR(18) NOT NULL,
-  `Foto` VARCHAR(225) NULL,
-  `Datos_contacto` INT NOT NULL,
-  PRIMARY KEY (`Id_user`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Roles_usuarios` (
+CREATE TABLE IF NOT EXISTS `mydb`.`Roles_usuarios` (
   `Id_roles_user` INT NOT NULL AUTO_INCREMENT,
   `Usuario` INT NOT NULL,
   `Rol` INT NOT NULL,
-  PRIMARY KEY (`Id_roles_user`));
-  
-  CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Roles` (
+  PRIMARY KEY (`Id_roles_user`),
+  UNIQUE INDEX `Id_user_UNIQUE` (`Usuario` ASC) VISIBLE,
+  UNIQUE INDEX `Id_roles_UNIQUE` (`Rol` ASC) VISIBLE,
+  CONSTRAINT `Usuario`
+    FOREIGN KEY (`Usuario`)
+    REFERENCES `mydb`.`Usuarios` (`Id_user`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `Rol`
+    FOREIGN KEY (`Rol`)
+    REFERENCES `mydb`.`Roles` (`Id_rol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Roles_usuarios` (
+  `Id_roles_user` INT NOT NULL AUTO_INCREMENT,
+  `Usuario` INT NOT NULL,
+  `Rol` INT NOT NULL,
+  PRIMARY KEY (`Id_roles_user`),
+  UNIQUE INDEX `Id_user_UNIQUE` (`Usuario` ASC) VISIBLE,
+  UNIQUE INDEX `Id_roles_UNIQUE` (`Rol` ASC) VISIBLE,
+  CONSTRAINT `Usuario`
+    FOREIGN KEY (`Usuario`)
+    REFERENCES `mydb`.`Usuarios` (`Id_user`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `Rol`
+    FOREIGN KEY (`Rol`)
+    REFERENCES `mydb`.`Roles` (`Id_rol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Roles` (
   `Id_rol` INT NOT NULL AUTO_INCREMENT,
   `Nombre_rol` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`Id_rol`));
   
+CREATE TABLE IF NOT EXISTS `mydb`.`Contactos` (
+  `ID_Cont` INT NOT NULL AUTO_INCREMENT,
+  `Celular` VARCHAR(20) NOT NULL,
+  `Telefono` VARCHAR(20) NULL,
+  `Email` VARCHAR(50) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID_Cont`),
+  UNIQUE INDEX `ID_Cont_UNIQUE` (`ID_Cont` ASC) VISIBLE,
+  UNIQUE INDEX `Email_UNIQUE` (`Email` ASC) VISIBLE);
   
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Facturas` (
-  `ID_Factura` INT NOT NULL AUTO_INCREMENT,
-  `Fecha_creacion` TIMESTAMP NOT NULL,
-  `Valor_IVA` DECIMAL NOT NULL,
-  `Valor_total_compra` DECIMAL NOT NULL,
-  `Valor_envio` DECIMAL NOT NULL,
-  `Cliente` INT NOT NULL,
-  PRIMARY KEY (`ID_Factura`));
-  
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Tipo_doc` (
-  `Id_tipo_doc` INT NOT NULL AUTO_INCREMENT,
-  `Nombre_tipo_doc` VARCHAR(6) NOT NULL,
-  PRIMARY KEY (`Id_tipo_doc`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Proveedores` (
+CREATE TABLE IF NOT EXISTS `mydb`.`Proveedores` (
   `ID_Proveedor` INT NOT NULL AUTO_INCREMENT,
   `Tipo_doc` INT NOT NULL,
   `No_identificacion_prov` INT NOT NULL,
   `Nombre_prov` VARCHAR(50) NOT NULL,
   `Direccion` VARCHAR(50) NOT NULL,
   `Ciudad` VARCHAR(50) NOT NULL,
-  `Datos_contacto` INT NOT NULL,
-  PRIMARY KEY (`ID_Proveedor`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Contactos` (
-  `ID_Cont` INT NOT NULL AUTO_INCREMENT,
-  `Celular` VARCHAR(20) NOT NULL,
-  `Telefono` VARCHAR(20) NULL,
-  `Email` VARCHAR(50) NOT NULL UNIQUE,
-  PRIMARY KEY (`ID_Cont`));
-  
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Ventas` (
-  `ID_Venta` INT NOT NULL AUTO_INCREMENT,
-  `Fecha_venta` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  `Cliente` INT NOT NULL,
-  PRIMARY KEY (`ID_Venta`));
-  
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Ventas_productos` (
-  `Id_ventas_prod` INT NOT NULL AUTO_INCREMENT,
-  `Producto_vendido` INT NOT NULL,
-  `Registro_venta` INT NOT NULL,
-  `Precio_total` DOUBLE NULL,
-  `Cantidad` INT NULL,
-  PRIMARY KEY (`Id_ventas_prod`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Productos` (
+  `id_datos_contact` INT NOT NULL,
+  PRIMARY KEY (`ID_Proveedor`),
+  UNIQUE INDEX `No_identificacion_prov_UNIQUE` (`No_identificacion_prov` ASC) VISIBLE,
+  UNIQUE INDEX `Tipo_doc_UNIQUE` (`Tipo_doc` ASC) VISIBLE,
+  INDEX `id_contact_prov_idx` (`id_datos_contact` ASC) VISIBLE,
+  CONSTRAINT `Tipo_doc`
+    FOREIGN KEY (`Tipo_doc`)
+    REFERENCES `mydb`.`Tipo_doc` (`Id_tipo_doc`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `id_contact_prov`
+    FOREIGN KEY (`id_datos_contact`)
+    REFERENCES `mydb`.`Contactos` (`ID_Cont`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+    CREATE TABLE IF NOT EXISTS `mydb`.`Tipo_doc` (
+  `Id_tipo_doc` INT NOT NULL AUTO_INCREMENT,
+  `Nombre_tipo_doc` VARCHAR(6) NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Id_tipo_doc`),
+  UNIQUE INDEX `Id_tipo_doc_UNIQUE` (`Id_tipo_doc` ASC) VISIBLE);
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Proveedor_producto` (
+  `id_proveedor_producto` INT NOT NULL AUTO_INCREMENT,
+  `id_proveedor` INT NOT NULL,
+  `id_producto` INT NOT NULL,
+  PRIMARY KEY (`id_proveedor_producto`),
+  INDEX `fk_proveedor_prod_idx` (`id_proveedor` ASC, `id_producto` ASC) VISIBLE,
+  INDEX `fk_producto_dist_idx` (`id_producto` ASC) VISIBLE,
+  CONSTRAINT `fk_proveedor_prod`
+    FOREIGN KEY (`id_proveedor` , `id_producto`)
+    REFERENCES `mydb`.`Proveedores` (`ID_Proveedor` , `ID_Proveedor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_producto_dist`
+    FOREIGN KEY (`id_producto`)
+    REFERENCES `mydb`.`Productos` (`ID_Prod`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Productos` (
   `ID_Prod` INT NOT NULL AUTO_INCREMENT,
-  `Nombre_prod` VARCHAR(50) NOT NULL,
+  `Descripcion_prod` TEXT NOT NULL,
   `Stock` INT NOT NULL,
   `Precio_publico` DECIMAL NOT NULL,
   `Precio_compra` DECIMAL NOT NULL,
-  `Categoria_prod` INT NOT NULL,
-  `Marca` INT NOT NULL,
-  PRIMARY KEY (`ID_Prod`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Categorias` (
-  `ID_Cat` INT NOT NULL AUTO_INCREMENT,
-  `Nombre_cat` VARCHAR(50) NOT NULL,
-  PRIMARY KEY (`ID_Cat`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Proveedores_productos` (
-  `Id_prov_prod` INT NOT NULL AUTO_INCREMENT,
-  `Proveedores` INT NOT NULL,
-  `Producto` INT NOT NULL,
-  PRIMARY KEY (`Id_prov_prod`));
-
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Compra` (
-  `id_compra` INT NOT NULL AUTO_INCREMENT,
-  `id_producto` INT NOT NULL,
-  `cantidad` INT NOT NULL,
-  `precio_total` DOUBLE NULL,
-  PRIMARY KEY (`id_compra`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Fabricante` (
-  `id_fabricante` INT NOT NULL AUTO_INCREMENT,
-  `nombre_fabricante` VARCHAR(50) NOT NULL,
-  PRIMARY KEY (`id_fabricante`));
-  
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Modelo` (
+  `No_serie` CHAR(8) NOT NULL,
+  `id_modelo` INT NOT NULL,
+  `id_tipo_prod` INT NOT NULL,
+  PRIMARY KEY (`ID_Prod`),
+  INDEX `fk_id_modelo_idx` (`id_modelo` ASC) VISIBLE,
+  INDEX `fk_id_tipo_prod_idx` (`id_tipo_prod` ASC) VISIBLE,
+  CONSTRAINT `fk_id_modelo`
+    FOREIGN KEY (`id_modelo`)
+    REFERENCES `mydb`.`Modelo` (`Id_marca`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_id_tipo_prod`
+    FOREIGN KEY (`id_tipo_prod`)
+    REFERENCES `mydb`.`Tipo_producto` (`id_tipo_producto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Modelo` (
   `Id_marca` INT NOT NULL AUTO_INCREMENT,
   `Nombre_modelo` VARCHAR(50) NOT NULL,
   `id_fabricante` INT NOT NULL,
   `id_categoria` INT NOT NULL,
-  PRIMARY KEY (`Id_marca`));
+  PRIMARY KEY (`Id_marca`),
+  UNIQUE INDEX `Id_marca_UNIQUE` (`Id_marca` ASC) VISIBLE,
+  INDEX `fk_fabricante_idx` (`id_fabricante` ASC) VISIBLE,
+  INDEX `fk_categoria_idx` (`id_categoria` ASC) VISIBLE,
+  CONSTRAINT `fk_fabricante`
+    FOREIGN KEY (`id_fabricante`)
+    REFERENCES `mydb`.`Fabricante` (`id_fabricante`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_categoria`
+    FOREIGN KEY (`id_categoria`)
+    REFERENCES `mydb`.`Categorias` (`ID_Cat`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Categorias` (
+  `ID_Cat` INT NOT NULL AUTO_INCREMENT,
+  `Nombre_cat` VARCHAR(50) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID_Cat`));
   
   
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`Tipo_producto` (
+CREATE TABLE IF NOT EXISTS `mydb`.`Fabricante` (
+  `id_fabricante` INT NOT NULL AUTO_INCREMENT,
+  `nombre_fabricante` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id_fabricante`));
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`fabricante_producto` (
+  `id_fabricante_producto` INT NOT NULL AUTO_INCREMENT,
+  `id_fabricante` INT NOT NULL,
+  `id_producto` INT NOT NULL,
+  PRIMARY KEY (`id_fabricante_producto`),
+  INDEX `fk_fabricante_prod_idx` (`id_fabricante` ASC) VISIBLE,
+  INDEX `fk_producto_fab_idx` (`id_producto` ASC) VISIBLE,
+  CONSTRAINT `fk_fabricante_prod`
+    FOREIGN KEY (`id_fabricante`)
+    REFERENCES `mydb`.`Fabricante` (`id_fabricante`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_producto_fab`
+    FOREIGN KEY (`id_producto`)
+    REFERENCES `mydb`.`Productos` (`ID_Prod`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Tipo_producto` (
   `id_tipo_producto` INT NOT NULL AUTO_INCREMENT,
   `Nombre_tipo_prod` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id_tipo_producto`));
   
-CREATE TABLE IF NOT EXISTS `tienda_virtual`.`fabricante_producto` (
-  `id_fabricante_producto` INT NOT NULL AUTO_INCREMENT,
-  `id_fabricante` INT NOT NULL,
+  
+CREATE TABLE IF NOT EXISTS `mydb`.`Carrito` (
+  `id_compra` INT NOT NULL AUTO_INCREMENT,
   `id_producto` INT NOT NULL,
-  PRIMARY KEY (`id_fabricante_producto`));
+  `cantidad` INT NOT NULL,
+  `precio_total` DOUBLE NULL,
+  PRIMARY KEY (`id_compra`),
+  INDEX `fk_producto_idx` (`id_producto` ASC) VISIBLE,
+  CONSTRAINT `fk_producto`
+    FOREIGN KEY (`id_producto`)
+    REFERENCES `mydb`.`Productos` (`ID_Prod`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Facturas` (
+  `ID_Factura` INT NOT NULL AUTO_INCREMENT,
+  `Fecha_creacion` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `Valor_IVA` DECIMAL NOT NULL,
+  `Valor_total_compra` DECIMAL NOT NULL,
+  `Valor_envio` DECIMAL NOT NULL,
+  `Cliente` INT NOT NULL,
+  `Comprar` INT NOT NULL,
+  PRIMARY KEY (`ID_Factura`),
+  UNIQUE INDEX `Id_user_UNIQUE` (`Cliente` ASC) VISIBLE,
+  INDEX `fk_compra_idx` (`Comprar` ASC) VISIBLE,
+  CONSTRAINT `fk_idCliente_factura`
+    FOREIGN KEY (`Cliente`)
+    REFERENCES `mydb`.`Usuarios` (`Id_user`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_compra`
+    FOREIGN KEY (`Comprar`)
+    REFERENCES `mydb`.`Carrito` (`id_compra`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+    
+CREATE TABLE IF NOT EXISTS `mydb`.`Ventas` (
+  `ID_Venta` INT NOT NULL AUTO_INCREMENT,
+  `Fecha_venta` DATE NOT NULL,
+  `id_factura` INT NOT NULL,
+  PRIMARY KEY (`ID_Venta`),
+  UNIQUE INDEX `ID_Venta_UNIQUE` (`ID_Venta` ASC) VISIBLE,
+  INDEX `fk_factura_idx` (`id_factura` ASC) VISIBLE,
+  CONSTRAINT `fk_factura`
+    FOREIGN KEY (`id_factura`)
+    REFERENCES `mydb`.`Facturas` (`ID_Factura`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
   
   SELECT * FROM usuarios;
   ~~~
